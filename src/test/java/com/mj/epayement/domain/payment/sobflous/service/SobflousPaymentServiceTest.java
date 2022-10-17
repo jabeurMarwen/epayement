@@ -107,7 +107,7 @@ class SobflousPaymentServiceTest {
                     .thenReturn(transactionHistory);
             mockSobliflouRequestApi();
 
-            var startSobflousPaymentResponse = sobflousPaymentService.requestPayment(paymentPost);
+            var startSobflousPaymentResponse = sobflousPaymentService.requestPayment(paymentPost, transactionHistory);
             assertNotNull(startSobflousPaymentResponse);
             assertNotNull(startSobflousPaymentResponse.getProviderUrl());
             assertNotNull(startSobflousPaymentResponse.getProviderMobileUrl());
@@ -140,7 +140,7 @@ class SobflousPaymentServiceTest {
 
             mockSobliflouCheckPayementApi();
 
-            var sobflousCheckStatusResponse = sobflousPaymentService.checkPaymentStatus(checkStatusRequest);
+            var sobflousCheckStatusResponse = sobflousPaymentService.checkPaymentStatus(checkStatusRequest, transactionHistory);
 
             assertNotNull(sobflousCheckStatusResponse);
             assertNotNull(sobflousCheckStatusResponse.getTransactionStatus());
