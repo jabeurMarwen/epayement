@@ -1,4 +1,4 @@
-package com.mj.epayement.domain.clicktopay.exception;
+package com.mj.epayement.domain.payment.clicktopay.exception;
 
 import java.util.Arrays;
 

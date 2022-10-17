@@ -1,4 +1,4 @@
-package com.mj.epayement.domain.clicktopay.service;
+package com.mj.epayement.domain.payment.sobflous.service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,8 +25,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.mj.epayement.EpayementApplication;
 import com.mj.epayement.core.config.EPaymentAuditorAware;
+import com.mj.epayement.domain.payment.sobflous.mapper.SobflousMapper;
 import com.mj.epayement.shared.entity.TransactionHistory;
-import com.mj.epayement.shared.model.*;
+import com.mj.epayement.shared.model.CheckStatusRequest;
+import com.mj.epayement.shared.model.PaymentMethod;
+import com.mj.epayement.shared.model.RequestPaymentRequest;
 import com.mj.epayement.shared.repository.TransactionHistoryRepository;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,13 +43,14 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = EpayementApplication.class)
 @ActiveProfiles("test")
-class ClickToPayPaymentServiceTest {
+class SobflousPaymentServiceTest {
 
-    public static final String CLICKTOPAY_PAIEMENT_REQUEST = "/register.do";
-    public static final String CLICKTOPAY_CHECK_PAYEMENT_STATUS = "/getOrderStatus.do";
+    public static final String SOBLIFLOUS_PAIEMENT_REQUEST = "/demandepaiement";
+    public static final String SOBLIFLOUS_CHECK_PAYEMENT_STATUS = "/statustransaction";
+    ;
 
-    @Value("${application.feign.clickToPay.uri}")
-    private String clickToPayUri;
+    @Value("${application.feign.sobflous.uri}")
+    private String sobflousUri;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -64,7 +68,10 @@ class ClickToPayPaymentServiceTest {
     protected MappingJackson2HttpMessageConverter springMvcJacksonConverter;
 
     @Autowired
-    private ClickToPayPaymentService clickToPayPaymentService;
+    private SobflousPaymentService sobflousPaymentService;
+
+    @Autowired
+    private SobflousMapper sobflousMapper;
 
     @BeforeEach
     void setup() {
@@ -80,14 +87,14 @@ class ClickToPayPaymentServiceTest {
             RequestPaymentRequest paymentPost = RequestPaymentRequest.builder()
                     .amount("29.000")
                     .applicationId("KLUB_KISSA")
-                    .backUrl("https://int.klubkissa.com/auth/login")
+                    .backUrl("")
                     .bonusVariable("")
-                    .currency("TND")
+                    .currency("")
                     .customerId("100")
-                    .shopPassword("XSc74s2c")
-                    .shopId("0402522023")
-                    .paymentId("5")
-                    .service(PaymentMethod.CLICKTOPAY_SHOP)
+                    .shopPassword("2pNJDYE31S")
+                    .shopId("168")
+                    .paymentId("26")
+                    .service(PaymentMethod.SOBFLOUS_SHOP)
                     .build();
 
             TransactionHistory transactionHistory = TransactionHistory.builder()
@@ -98,21 +105,22 @@ class ClickToPayPaymentServiceTest {
                     .providerPayementId("").build();
             when(transactionHistoryRepository.save(any()))
                     .thenReturn(transactionHistory);
+            mockSobliflouRequestApi();
 
-
-            mockClickToPayRequestApi();
-            RequestPaymentResponse requestPaymentResponse = clickToPayPaymentService.requestPayment(paymentPost,transactionHistory);
-
-            assertNotNull(requestPaymentResponse);
-            assertNotNull(requestPaymentResponse.getProviderUrl());
+            var startSobflousPaymentResponse = sobflousPaymentService.requestPayment(paymentPost);
+            assertNotNull(startSobflousPaymentResponse);
+            assertNotNull(startSobflousPaymentResponse.getProviderUrl());
+            assertNotNull(startSobflousPaymentResponse.getProviderMobileUrl());
         }
     }
 
     @Test
-    void GIVEN_call_check_payement_WHEN_clickToPay_payement_should_return_reqonce() throws Exception {
+    void GIVEN_call_check_payement_WHEN_sobflous_payement_should_return_reqonce() throws Exception {
         try (MockedStatic<EPaymentAuditorAware> utilities = Mockito.mockStatic(EPaymentAuditorAware.class)) {
             utilities.when(EPaymentAuditorAware::getCurrentUsername)
                     .thenReturn("Default auditor");
+
+            MockitoAnnotations.openMocks(this);
             TransactionHistory transactionHistory = TransactionHistory.builder()
                     .shopId("168")
                     .shopPassword("2pNJDYE31S")
@@ -121,32 +129,36 @@ class ClickToPayPaymentServiceTest {
                     .providerPayementId("10965").build();
             when(transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(anyString(), any(PaymentMethod.class)))
                     .thenReturn(transactionHistory);
+            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionId(anyString()))
+                    .thenReturn(transactionHistory);
             CheckStatusRequest checkStatusRequest = CheckStatusRequest.builder()
-                    .shopPassword("XSc74s2c")
-                    .shopId("0402522023")
-                    .service(PaymentMethod.CLICKTOPAY_SHOP)
-                    .transactionId("115")
+                    .shopPassword("2pNJDYE31S")
+                    .shopId("168")
+                    .service(PaymentMethod.SOBFLOUS_SHOP)
+                    .transactionId("26")
                     .build();
-            mockClickToPayCheckPayementApi();
-            CheckStatusResponse requestPaymentResponse = clickToPayPaymentService.checkPaymentStatus(checkStatusRequest, transactionHistory);
 
-            assertNotNull(requestPaymentResponse);
+            mockSobliflouCheckPayementApi();
+
+            var sobflousCheckStatusResponse = sobflousPaymentService.checkPaymentStatus(checkStatusRequest);
+
+            assertNotNull(sobflousCheckStatusResponse);
+            assertNotNull(sobflousCheckStatusResponse.getTransactionStatus());
         }
     }
 
-    private void mockClickToPayRequestApi() throws URISyntaxException {
+    private void mockSobliflouRequestApi() throws URISyntaxException {
         String apiResponce =
-                "{\"orderId\":\"8ae1ac24-0c8b-767d-93c1-804400c2bb94\",\"formUrl\":\"https://test.clictopay.com/payment/merchants/CLICTOPAY/payment_fr.html?mdOrder=8ae1ac24-0c8b-767d-93c1-804400c2bb94\"}";
-        mockServer.expect(ExpectedCount.once(), requestTo(new URI(String.format("%s%s", clickToPayUri, CLICKTOPAY_PAIEMENT_REQUEST))))
+                "{\"result\":{\"TRANSM_ID\":\"26\",\"AMOUNT\":\"29.000\",\"DISCOUNT\":0,\"DISCOUNT_AMOUNT\":29,\"TRANSS_ID\":\"10965\",\"URL\":\"https:\\/\\/www.sobflous.online\\/fr\\/admin\\/marchand\\/payementmarchand\\/e93a27593927c43ba9726a69a29afa7d7a691872fcad555773a6214ccd4e69441d9dc70db0ab3eb74b1b221dea13ed27b403c85607097f1f6151328fce13fdf7\",\"TOKEN\":\"c5882e27adbe146f9167f2d4c8dade081f6dc758f84d7013cda841f888d6cf7b863c07f54dd85655603dfc12dcd455fcf91d10150d1125c86fa1f8aba5b18013\",\"CODE_COMMANDE\":\"VTYNL23704M\",\"URL_MOBILE\":\"sobflous:\\/\\/codeCommande?c=VTYNL23704M\"}}";
+        mockServer.expect(ExpectedCount.once(), requestTo(new URI(String.format("%s%s", sobflousUri, SOBLIFLOUS_PAIEMENT_REQUEST))))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.OK)
                         .body(apiResponce));
     }
 
-    private void mockClickToPayCheckPayementApi() throws URISyntaxException {
-        String apiResponce =
-                "{\"depositAmount\":0,\"currency\":\"788\",\"authCode\":2,\"ErrorCode\":\"\",\"ErrorMessage\":\"Payment is declined\",\"OrderStatus\":6,\"OrderNumber\":\"140\",\"Amount\":900}";
-        mockServer.expect(ExpectedCount.once(), requestTo(new URI(String.format("%s%s", clickToPayUri, CLICKTOPAY_CHECK_PAYEMENT_STATUS))))
+    private void mockSobliflouCheckPayementApi() throws URISyntaxException {
+        String apiResponce = "{\"result\":{\"MERCHANT_TRANS_ID\":\"26\",\"AMOUNT\":\"29\",\"SOBFLOUS_TRANS_ID\":\"10965\",\"TRANSACTION_STATE\":\"waiting\"}}";
+        mockServer.expect(ExpectedCount.once(), requestTo(new URI(String.format("%s%s", sobflousUri, SOBLIFLOUS_CHECK_PAYEMENT_STATUS))))
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.OK)
                         .body(apiResponce));

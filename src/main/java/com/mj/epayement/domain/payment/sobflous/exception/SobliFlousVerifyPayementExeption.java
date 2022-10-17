@@ -1,4 +1,4 @@
-package com.mj.epayement.domain.sobflous.exception;
+package com.mj.epayement.domain.payment.sobflous.exception;
 
 import java.util.Arrays;
 

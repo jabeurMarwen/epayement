@@ -1,10 +1,9 @@
-package com.mj.epayement.domain.clicktopay.service;
+package com.mj.epayement.domain.payment.clicktopay.service;
 
 import java.util.Arrays;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -16,15 +15,14 @@ import com.mj.epayement.core.exception.RestException;
 import com.mj.epayement.core.utils.ClickToPayJsonProperties;
 import com.mj.epayement.core.utils.JsonUtil;
 import com.mj.epayement.core.utils.MapUtils;
-import com.mj.epayement.domain.clicktopay.exception.ClickToPayRequestPayementExeption;
-import com.mj.epayement.domain.clicktopay.exception.ClickToPayVerifyPayementExeption;
+import com.mj.epayement.domain.payment.PaymentStrategy;
+import com.mj.epayement.domain.payment.clicktopay.exception.ClickToPayRequestPayementExeption;
+import com.mj.epayement.domain.payment.clicktopay.exception.ClickToPayVerifyPayementExeption;
 import com.mj.epayement.shared.entity.TransactionHistory;
-import com.mj.epayement.shared.model.CheckStatusRequest;
-import com.mj.epayement.shared.model.CheckStatusResponse;
-import com.mj.epayement.shared.model.RequestPaymentRequest;
-import com.mj.epayement.shared.model.RequestPaymentResponse;
+import com.mj.epayement.shared.model.*;
 import com.mj.epayement.shared.repository.TransactionHistoryRepository;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -33,7 +31,8 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class ClickToPayPaymentService {
+@AllArgsConstructor
+public class ClickToPayPaymentService implements PaymentStrategy {
 
     public static final String CLICKTOPAY_PAIEMENT_REQUEST = "/register.do";
     public static final String CLICKTOPAY_CHECK_PAYEMENT_STATUS = "/getOrderStatus.do";
@@ -43,11 +42,9 @@ public class ClickToPayPaymentService {
     @Value("${application.feign.clickToPay.uri}")
     private String uri;
 
-    @Autowired
-    private ServiceCall serviceCall;
+    private final ServiceCall serviceCall;
 
-    @Autowired
-    private TransactionHistoryRepository transactionHistoryRepository;
+    private final TransactionHistoryRepository transactionHistoryRepository;
 
 
     /**
@@ -57,6 +54,7 @@ public class ClickToPayPaymentService {
      * @param transactionHistory    @{@link TransactionHistory}
      * @return ClickToPayPaymentResponse @{@link RequestPaymentResponse}
      */
+    @Override
     public RequestPaymentResponse requestPayment(RequestPaymentRequest requestPaymentRequest, TransactionHistory transactionHistory) {
         try {
             var url = String.format("%s%s", uri, CLICKTOPAY_PAIEMENT_REQUEST);
@@ -107,6 +105,7 @@ public class ClickToPayPaymentService {
      * @param transactionHistory @{@link TransactionHistory}
      * @return @{@link CheckStatusResponse}
      */
+    @Override
     public CheckStatusResponse checkPaymentStatus(CheckStatusRequest checkStatusRequest, TransactionHistory transactionHistory) {
         try {
             if (transactionHistory != null &&
@@ -150,5 +149,10 @@ public class ClickToPayPaymentService {
             throw new RestException(e.getMessage(), ErrorCodes.REST_EXCEPTION);
         }
         return null;
+    }
+
+    @Override
+    public PaymentMethod getPayementMethod() {
+        return PaymentMethod.CLICKTOPAY_SHOP;
     }
 }

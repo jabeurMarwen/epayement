@@ -1,4 +1,4 @@
-package com.mj.epayement.domain.sobflous.controller;
+package com.mj.epayement.domain.payment.sobflous.controller;
 
 import java.net.URI;
 

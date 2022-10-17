@@ -1,4 +1,4 @@
-package com.mj.epayement.domain.sobflous.service;
+package com.mj.epayement.domain.payment.sobflous.service;
 
 import java.util.Arrays;
 
@@ -15,12 +15,11 @@ import com.mj.epayement.core.utils.JsonUtil;
 import com.mj.epayement.core.utils.MapUtils;
 import com.mj.epayement.core.utils.SobflousJsonProperties;
 import com.mj.epayement.core.utils.SobflousUtils;
-import com.mj.epayement.domain.sobflous.exception.SobliFlousRequestPayementExeption;
-import com.mj.epayement.domain.sobflous.exception.SobliFlousVerifyPayementExeption;
-import com.mj.epayement.shared.model.CheckStatusRequest;
-import com.mj.epayement.shared.model.CheckStatusResponse;
-import com.mj.epayement.shared.model.RequestPaymentRequest;
-import com.mj.epayement.shared.model.RequestPaymentResponse;
+import com.mj.epayement.domain.payment.PaymentStrategy;
+import com.mj.epayement.domain.payment.sobflous.exception.SobliFlousRequestPayementExeption;
+import com.mj.epayement.domain.payment.sobflous.exception.SobliFlousVerifyPayementExeption;
+import com.mj.epayement.shared.entity.TransactionHistory;
+import com.mj.epayement.shared.model.*;
 import com.mj.epayement.shared.repository.TransactionHistoryRepository;
 
 import lombok.AllArgsConstructor;
@@ -33,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class SobflousPaymentService {
+public class SobflousPaymentService implements PaymentStrategy {
 
     public static final String SOBLIFLOUS_PAIEMENT_REQUEST = "/demandepaiement";
     public static final String SOBLIFLOUS_VERIFY_PAIEMENT = "/verificationtransaction";
@@ -73,7 +72,8 @@ public class SobflousPaymentService {
      * @param request @{@link RequestPaymentRequest}
      * @return RequestSobflousPaymentResponse @{@link RequestPaymentResponse}
      */
-    public RequestPaymentResponse requestPayment(RequestPaymentRequest request) {
+    @Override
+    public RequestPaymentResponse requestPayment(RequestPaymentRequest request, TransactionHistory transactionHistory) {
         try {
             var url = String.format("%s%s", uri, SOBLIFLOUS_PAIEMENT_REQUEST);
             //prepare parameter
@@ -172,9 +172,10 @@ public class SobflousPaymentService {
      * @param sobflousCheckStatusRequest @{@link CheckStatusRequest}
      * @return @{@link CheckStatusResponse}
      */
-    public CheckStatusResponse checkPaymentStatus(CheckStatusRequest sobflousCheckStatusRequest) {
+    @Override
+    public CheckStatusResponse checkPaymentStatus(CheckStatusRequest sobflousCheckStatusRequest, TransactionHistory transactionHistory) {
         try {
-            var transactionHistory =
+            transactionHistory =
                     transactionHistoryRepository.findTransactionHistoryByAppTransactionId(sobflousCheckStatusRequest.getTransactionId());
             if (transactionHistory != null &&
                     StringUtils.isNotEmpty(transactionHistory.getProviderTransactionId())) {
@@ -219,6 +220,11 @@ public class SobflousPaymentService {
             log.error(e.getMessage());
             throw new RestException(e.getMessage(), ErrorCodes.REST_EXCEPTION);
         }
+    }
+
+    @Override
+    public PaymentMethod getPayementMethod() {
+        return PaymentMethod.SOBFLOUS_SHOP;
     }
 
 }

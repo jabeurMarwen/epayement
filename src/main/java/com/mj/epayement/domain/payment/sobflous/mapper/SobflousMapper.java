@@ -1,4 +1,4 @@
-package com.mj.epayement.domain.sobflous.mapper;
+package com.mj.epayement.domain.payment.sobflous.mapper;
 
 import org.springframework.stereotype.Component;
 
