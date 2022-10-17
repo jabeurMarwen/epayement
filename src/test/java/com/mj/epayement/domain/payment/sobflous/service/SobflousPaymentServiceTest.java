@@ -25,7 +25,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.mj.epayement.EpayementApplication;
 import com.mj.epayement.core.config.EPaymentAuditorAware;
-import com.mj.epayement.domain.payment.sobflous.mapper.SobflousMapper;
 import com.mj.epayement.shared.entity.TransactionHistory;
 import com.mj.epayement.shared.model.CheckStatusRequest;
 import com.mj.epayement.shared.model.PaymentMethod;
@@ -69,9 +68,6 @@ class SobflousPaymentServiceTest {
 
     @Autowired
     private SobflousPaymentService sobflousPaymentService;
-
-    @Autowired
-    private SobflousMapper sobflousMapper;
 
     @BeforeEach
     void setup() {
