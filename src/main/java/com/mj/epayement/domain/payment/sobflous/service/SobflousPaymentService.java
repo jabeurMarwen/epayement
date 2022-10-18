@@ -3,6 +3,7 @@ package com.mj.epayement.domain.payment.sobflous.service;
 import java.util.Arrays;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-@AllArgsConstructor
 public class SobflousPaymentService implements PaymentStrategy {
 
     public static final String SOBLIFLOUS_PAIEMENT_REQUEST = "/demandepaiement";
@@ -41,12 +41,14 @@ public class SobflousPaymentService implements PaymentStrategy {
     public static final String ERROR_OCCURED_CHECK_PAYEMENT = "An error has occurred when invoking sobflous check Payment Status API";
     public static final String ERROR_OCCURED_VERIFY_PAYEMENT = "An error has occurred when invoking sobflous Verify PAYEMENT API";
 
-    @Value("${application.feign.sobflous.uri}")
+    @Value("${sobflous.uri}")
     private String uri;
 
-    private final ServiceCall serviceCall;
+    @Autowired
+    private ServiceCall serviceCall;
 
-    private final TransactionHistoryRepository transactionHistoryRepository;
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
 
     /**
      * @param transmId @{@link String}
@@ -105,7 +107,6 @@ public class SobflousPaymentService implements PaymentStrategy {
                     log.error("SOBLIFLOUS REQUEST OF TRANSACTION : " + request.getPaymentId() + " EXEPTION : " + e.getMessage());
                     throw new RestException(e.getMessage(), ErrorCodes.CLIENT_EXEPTION);
                 }
-
             }
             log.error(ERROR_OCCURED_REQUEST_PAYEMENT);
             throw new RestException(response, ErrorCodes.REST_EXCEPTION);

@@ -273,7 +273,7 @@ class DigiPayControllerTest {
                     .providerPayementId("10965").build();
             when(transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(anyString(), any(PaymentMethod.class)))
                     .thenReturn(transactionHistory);
-            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionId(anyString()))
+            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(anyString(), any(PaymentMethod.class)))
                     .thenReturn(transactionHistory);
             CheckStatusRequest checkStatusRequest = CheckStatusRequest.builder()
                     .shopPassword("2pNJDYE31S")
@@ -317,7 +317,7 @@ class DigiPayControllerTest {
                     .providerPayementId("10965").build();
             when(transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(anyString(), any(PaymentMethod.class)))
                     .thenReturn(transactionHistory);
-            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionId(anyString()))
+            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(anyString(), any(PaymentMethod.class)))
                     .thenReturn(transactionHistory);
             CheckStatusRequest checkStatusRequest = CheckStatusRequest.builder()
                     .shopPassword("2pNJDYE31S")

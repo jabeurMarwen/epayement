@@ -33,6 +33,7 @@ import com.mj.epayement.EpayementApplication;
 import com.mj.epayement.core.config.EPaymentAuditorAware;
 import com.mj.epayement.core.exception.RestException;
 import com.mj.epayement.shared.entity.TransactionHistory;
+import com.mj.epayement.shared.model.PaymentMethod;
 import com.mj.epayement.shared.model.RequestPaymentRequest;
 import com.mj.epayement.shared.repository.TransactionHistoryRepository;
 
@@ -126,7 +127,7 @@ class SobflousControllerTest {
                     .appTransactionId("26")
                     .providerTransactionId("")
                     .providerPayementId("").build();
-            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionId(anyString()))
+            when(transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(anyString(), PaymentMethod.SOBFLOUS_SHOP))
                     .thenReturn(transactionHistory);
 
             String apiResponce = "{\"result\":\"213\"}";

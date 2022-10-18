@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Currency;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
@@ -31,20 +32,21 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-@AllArgsConstructor
 public class ClickToPayPaymentService implements PaymentStrategy {
 
-    public static final String CLICKTOPAY_PAIEMENT_REQUEST = "/register.do";
-    public static final String CLICKTOPAY_CHECK_PAYEMENT_STATUS = "/getOrderStatus.do";
-    public static final String ERROR_OCCURED_REQUEST_PAYEMENT = "An error has occurred when invoking clickToPay request Payment API";
-    public static final String ERROR_OCCURED_CHECK_PAYEMENT = "An error has occurred when invoking clickToPay check Payment Status API";
+    public static String CLICKTOPAY_PAIEMENT_REQUEST = "/register.do";
+    public static String CLICKTOPAY_CHECK_PAYEMENT_STATUS = "/getOrderStatus.do";
+    public static String ERROR_OCCURED_REQUEST_PAYEMENT = "An error has occurred when invoking clickToPay request Payment API";
+    public static String ERROR_OCCURED_CHECK_PAYEMENT = "An error has occurred when invoking clickToPay check Payment Status API";
 
-    @Value("${application.feign.clickToPay.uri}")
+    @Value("${clickToPay.uri}")
     private String uri;
 
-    private final ServiceCall serviceCall;
+    @Autowired
+    private ServiceCall serviceCall;
 
-    private final TransactionHistoryRepository transactionHistoryRepository;
+    @Autowired
+    private TransactionHistoryRepository transactionHistoryRepository;
 
 
     /**
