@@ -48,7 +48,6 @@ public class SobflousPaymentService implements PaymentStrategy {
 
     private final TransactionHistoryRepository transactionHistoryRepository;
 
-
     /**
      * @param transmId @{@link String}
      * @param state    @{@link String}
@@ -56,7 +55,8 @@ public class SobflousPaymentService implements PaymentStrategy {
     public void confirmationPayement(String transmId, String state) {
         if (StringUtils.isNotEmpty(transmId) && "s".equals(state)) {
             var transactionHistory =
-                    transactionHistoryRepository.findTransactionHistoryByAppTransactionId(transmId);
+                    transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(transmId,
+                            PaymentMethod.SOBFLOUS_SHOP);
             var startPaymentRequest = RequestPaymentRequest.builder()
                     .paymentId(transmId)
                     .shopId(transactionHistory.getShopId())
@@ -125,7 +125,8 @@ public class SobflousPaymentService implements PaymentStrategy {
         try {
             log.info("Verify PAYEMENT FOR TRANSACTION : " + request.getPaymentId());
             var transactionHistory =
-                    transactionHistoryRepository.findTransactionHistoryByAppTransactionId(request.getPaymentId());
+                    transactionHistoryRepository.findTransactionHistoryByAppTransactionIdAndEpaimentProvider(request.getPaymentId(),
+                            PaymentMethod.SOBFLOUS_SHOP);
             var token = SobflousUtils.generateSobflousToken(request.getShopPassword(),
                     request.getShopId(),
                     request.getPaymentId());
@@ -175,8 +176,6 @@ public class SobflousPaymentService implements PaymentStrategy {
     @Override
     public CheckStatusResponse checkPaymentStatus(CheckStatusRequest sobflousCheckStatusRequest, TransactionHistory transactionHistory) {
         try {
-            transactionHistory =
-                    transactionHistoryRepository.findTransactionHistoryByAppTransactionId(sobflousCheckStatusRequest.getTransactionId());
             if (transactionHistory != null &&
                     StringUtils.isNotEmpty(transactionHistory.getProviderTransactionId())) {
                 var url = String.format("%s%s", uri, SOBLIFLOUS_CHECK_PAYEMENT_STATUS);

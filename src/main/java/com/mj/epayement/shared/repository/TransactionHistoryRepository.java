@@ -12,16 +12,6 @@ import com.mj.epayement.shared.model.PaymentMethod;
 public interface TransactionHistoryRepository extends JpaRepository<TransactionHistory, Long> {
 
     /**
-     * find Transaction History By AppTransactionId
-     *
-     * @param appTransactionId @{@link String}
-     * @return @{@link TransactionHistory}
-     */
-    @Query("SELECT transactionHistory FROM TransactionHistory as transactionHistory " +
-            "WHERE transactionHistory.appTransactionId = :appTransactionId")
-    TransactionHistory findTransactionHistoryByAppTransactionId(@Param("appTransactionId") String appTransactionId);
-
-    /**
      * find Transaction History By AppTransactionId and EpaimentProvider
      *
      * @param appTransactionId @{@link String}

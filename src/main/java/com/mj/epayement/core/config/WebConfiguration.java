@@ -1,6 +1,5 @@
 package com.mj.epayement.core.config;
 
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
