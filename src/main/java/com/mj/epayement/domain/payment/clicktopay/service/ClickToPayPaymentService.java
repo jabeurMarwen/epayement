@@ -23,7 +23,6 @@ import com.mj.epayement.shared.entity.TransactionHistory;
 import com.mj.epayement.shared.model.*;
 import com.mj.epayement.shared.repository.TransactionHistoryRepository;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class ClickToPayPaymentService implements PaymentStrategy {
 
-    public static String CLICKTOPAY_PAIEMENT_REQUEST = "/register.do";
-    public static String CLICKTOPAY_CHECK_PAYEMENT_STATUS = "/getOrderStatus.do";
-    public static String ERROR_OCCURED_REQUEST_PAYEMENT = "An error has occurred when invoking clickToPay request Payment API";
-    public static String ERROR_OCCURED_CHECK_PAYEMENT = "An error has occurred when invoking clickToPay check Payment Status API";
+    public static final String CLICKTOPAY_PAIEMENT_REQUEST = "/register.do";
+    public static final String CLICKTOPAY_CHECK_PAYEMENT_STATUS = "/getOrderStatus.do";
+    public static final String ERROR_OCCURED_REQUEST_PAYEMENT = "An error has occurred when invoking clickToPay request Payment API";
+    public static final String ERROR_OCCURED_CHECK_PAYEMENT = "An error has occurred when invoking clickToPay check Payment Status API";
 
     @Value("${clickToPay.uri}")
     private String uri;

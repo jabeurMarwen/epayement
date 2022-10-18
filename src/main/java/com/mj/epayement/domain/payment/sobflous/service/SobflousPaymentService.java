@@ -23,7 +23,6 @@ import com.mj.epayement.shared.entity.TransactionHistory;
 import com.mj.epayement.shared.model.*;
 import com.mj.epayement.shared.repository.TransactionHistoryRepository;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
